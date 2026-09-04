@@ -1,7 +1,10 @@
 import type { ExtensionScanResult } from '../types/extensionScanner'
 
 export const extensionScannerDemoData: ExtensionScanResult = {
-  url: 'aabcbjklmmebngbpkgaldbf...',
+  extensionId: 'aabcbjklmmebngbpkgaldbf...',
+  name: 'Free Video Downloader Pro',
+  version: '3.2.1',
+  manifestVersion: 2,
   overallScore: 93,
   severity: 'CRITICAL',
   confidence: 92.1,
