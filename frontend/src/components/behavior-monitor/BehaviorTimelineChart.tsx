@@ -5,13 +5,16 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ReferenceDot
+  Tooltip
 } from 'recharts'
-import { behaviorMonitorDemoData } from '../../data/behaviorMonitorDemoData'
-import { ChevronDown } from 'lucide-react'
+import type { TimelineDataPoint } from '../../types/behaviorMonitor'
 
-export default function BehaviorTimelineChart() {
+interface BehaviorTimelineChartProps {
+  data?: TimelineDataPoint[]
+  range?: string
+}
+
+export default function BehaviorTimelineChart({ data = [], range = '7d' }: BehaviorTimelineChartProps) {
   const legendItems = [
     { label: 'Normal', color: '#10b981' },
     { label: 'Suspicious', color: '#f59e0b' },
@@ -19,84 +22,84 @@ export default function BehaviorTimelineChart() {
     { label: 'Blocked', color: '#9333ea' }
   ]
 
+  const totalNormal = data.reduce((sum, d) => sum + (d.normal || 0), 0)
+  const totalSuspicious = data.reduce((sum, d) => sum + (d.suspicious || 0), 0)
+  const totalCritical = data.reduce((sum, d) => sum + (d.critical || 0), 0)
+  const totalBlocked = data.reduce((sum, d) => sum + (d.blocked || 0), 0)
+
   const stats = [
-    { label: 'Normal Events', value: 782, color: 'text-emerald-450' },
-    { label: 'Suspicious Events', value: 245, color: 'text-amber-500' },
-    { label: 'Critical Events', value: 156, color: 'text-red-400' },
-    { label: 'Blocked Events', value: 31, color: 'text-purple-400' }
+    { label: 'Normal Events', value: totalNormal, color: 'text-emerald-400' },
+    { label: 'Suspicious Events', value: totalSuspicious, color: 'text-amber-500' },
+    { label: 'Critical Events', value: totalCritical, color: 'text-red-400' },
+    { label: 'Blocked Events', value: totalBlocked, color: 'text-purple-400' }
   ]
+
+  const rangeLabels: Record<string, string> = {
+    '24h': 'Last 24 Hours',
+    '7d': 'Last 7 Days',
+    '30d': 'Last 30 Days',
+    'all': 'All Recorded History'
+  }
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col justify-between h-[360px] hover:border-slate-700 transition-colors text-left">
       {/* Header Info */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-base font-bold text-white leading-none">Behavior Timeline (Live)</h2>
-          <span className="text-xs text-slate-500 mt-1 block">Last 15 Minutes</span>
+          <h2 className="text-base font-bold text-white leading-none">Behavior Timeline (Evidence Log)</h2>
+          <span className="text-xs text-slate-500 mt-1 block">{rangeLabels[range] || 'Recent Activity'}</span>
         </div>
 
-        {/* Dropdown UI */}
-        <button className="flex items-center space-x-1.5 py-1 px-2.5 bg-slate-950/40 hover:bg-slate-850 border border-slate-800 rounded text-[10px] font-bold text-slate-400 hover:text-slate-200 transition-colors">
-          <span>Realtime Feed</span>
-          <ChevronDown className="w-3 h-3" />
-        </button>
+        <div className="flex items-center space-x-1.5 py-1 px-2.5 bg-slate-950/40 border border-slate-800 rounded text-[10px] font-bold text-slate-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Live Data Feed</span>
+        </div>
       </div>
 
       {/* Chart Canvas */}
       <div className="flex-1 w-full min-h-0 text-[10px] my-1">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={behaviorMonitorDemoData.timeline} margin={{ top: 20, right: 5, left: -25, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-            <XAxis
-              dataKey="time"
-              stroke="#64748b"
-              tickLine={false}
-              axisLine={false}
-              dy={10}
-              style={{ fontSize: 9, fontFamily: 'monospace' }}
-            />
-            <YAxis
-              stroke="#64748b"
-              tickLine={false}
-              axisLine={false}
-              dx={-5}
-              style={{ fontSize: 9, fontFamily: 'monospace' }}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
-                borderRadius: '8px',
-                color: '#f8fafc',
-                fontSize: '11px'
-              }}
-              labelStyle={{ fontWeight: 'bold', color: '#fff', marginBottom: '4px' }}
-            />
-            {/* 4 Colored zones / lines */}
-            <Line type="monotone" dataKey="normal" stroke="#10b981" strokeWidth={1.5} dot={false} />
-            <Line type="monotone" dataKey="suspicious" stroke="#f59e0b" strokeWidth={1.5} dot={false} />
-            <Line type="monotone" dataKey="critical" stroke="#ef4444" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="blocked" stroke="#9333ea" strokeWidth={1.5} dot={false} />
-
-            {/* Critical Dot Highlight label at May 14 equivalent index (time "10:40") */}
-            <ReferenceDot
-              x="10:40"
-              y={72}
-              r={5}
-              fill="#ef4444"
-              stroke="#0f172a"
-              strokeWidth={2}
-              label={{
-                value: 'Critical Event',
-                fill: '#ef4444',
-                fontSize: 9,
-                fontWeight: 'bold',
-                position: 'top',
-                offset: 8
-              }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {data.length === 0 ? (
+          <div className="h-full flex items-center justify-center text-xs text-slate-500 font-medium">
+            No behavioral events recorded in this time range.
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data} margin={{ top: 15, right: 5, left: -25, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <XAxis
+                dataKey="time"
+                stroke="#64748b"
+                tickLine={false}
+                axisLine={false}
+                dy={10}
+                style={{ fontSize: 9, fontFamily: 'monospace' }}
+              />
+              <YAxis
+                stroke="#64748b"
+                tickLine={false}
+                axisLine={false}
+                dx={-5}
+                allowDecimals={false}
+                style={{ fontSize: 9, fontFamily: 'monospace' }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#0f172a',
+                  border: '1px solid #1e293b',
+                  borderRadius: '8px',
+                  color: '#f8fafc',
+                  fontSize: '11px'
+                }}
+                labelStyle={{ fontWeight: 'bold', color: '#fff', marginBottom: '4px' }}
+              />
+              {/* 4 Colored zones / lines */}
+              <Line type="monotone" dataKey="normal" stroke="#10b981" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey="suspicious" stroke="#f59e0b" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey="critical" stroke="#ef4444" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="blocked" stroke="#9333ea" strokeWidth={1.5} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       {/* Legend list */}

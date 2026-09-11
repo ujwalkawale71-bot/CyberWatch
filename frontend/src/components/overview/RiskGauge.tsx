@@ -1,17 +1,33 @@
-export default function RiskGauge() {
-  const score = 71
-  const maxScore = 100
+import type { RiskGaugeData } from '../../api/dashboard'
+
+interface RiskGaugeProps {
+  data?: RiskGaugeData
+}
+
+export default function RiskGauge({ data }: RiskGaugeProps) {
+  const score = data?.score ?? 0
+  const maxScore = data?.maxScore ?? 100
   const radius = 45
   const circumference = 2 * Math.PI * radius
   const strokeDashoffset = circumference - (score / maxScore) * circumference
 
-  const ranges = [
-    { label: 'Critical (81-100)', count: 96, color: 'bg-red-500' },
-    { label: 'High (61-80)', count: 612, color: 'bg-orange-500' },
-    { label: 'Medium (41-60)', count: 548, color: 'bg-amber-500' },
-    { label: 'Low (21-40)', count: 298, color: 'bg-blue-500' },
-    { label: 'Safe (0-20)', count: 63, color: 'bg-emerald-500' }
+  const ranges = data?.ranges ?? [
+    { label: 'Critical (75-100)', count: 0, color: 'bg-red-500' },
+    { label: 'High (50-74)', count: 0, color: 'bg-orange-500' },
+    { label: 'Medium (25-49)', count: 0, color: 'bg-amber-500' },
+    { label: 'Low (10-24)', count: 0, color: 'bg-blue-500' },
+    { label: 'Safe (0-9)', count: 0, color: 'bg-emerald-500' }
   ]
+
+  const riskLevel = data?.riskLevel ?? (score >= 75 ? 'CRITICAL' : score >= 50 ? 'HIGH' : score >= 25 ? 'MODERATE' : score >= 10 ? 'LOW' : 'SAFE')
+
+  const badgeStyles = {
+    CRITICAL: 'bg-red-500/10 text-red-500 border-red-500/20',
+    HIGH: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+    MODERATE: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+    LOW: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    SAFE: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+  }[riskLevel] || 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col h-[280px] hover:border-slate-700 transition-colors justify-between text-left">
@@ -29,9 +45,9 @@ export default function RiskGauge() {
             <svg className="w-full h-full transform -rotate-90">
               <defs>
                 <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#3b82f6" /> {/* blue */}
-                  <stop offset="60%" stopColor="#f97316" /> {/* orange */}
-                  <stop offset="100%" stopColor="#ef4444" /> {/* red */}
+                  <stop offset="0%" stopColor="#3b82f6" />
+                  <stop offset="60%" stopColor="#f97316" />
+                  <stop offset="100%" stopColor="#ef4444" />
                 </linearGradient>
               </defs>
               {/* Outer background track */}
@@ -67,8 +83,8 @@ export default function RiskGauge() {
           </div>
 
           {/* Severity Badge */}
-          <span className="mt-2 text-[9px] font-extrabold tracking-wider px-2 py-0.5 rounded border leading-none bg-orange-500/10 text-orange-500 border-orange-500/20">
-            HIGH RISK
+          <span className={`mt-2 text-[9px] font-extrabold tracking-wider px-2 py-0.5 rounded border leading-none ${badgeStyles}`}>
+            {riskLevel} RISK
           </span>
         </div>
 

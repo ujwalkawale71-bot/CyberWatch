@@ -1,56 +1,84 @@
 import type { ExtensionScanResult } from '../types/extensionScanner'
+import { mapExtensionScanData } from '../utils/extensionReportMapper'
 
-export const extensionScannerDemoData: ExtensionScanResult = {
-  extensionId: 'aabcbjklmmebngbpkgaldbf...',
+export const extensionScannerDemoData: ExtensionScanResult = mapExtensionScanData({
+  scan_id: 1,
+  extension_id: 'aabcbjklmmebngbpkgaldbf...',
   name: 'Free Video Downloader Pro',
   version: '3.2.1',
-  manifestVersion: 2,
-  overallScore: 93,
-  severity: 'CRITICAL',
-  confidence: 92.1,
-  scanTime: 'Just now',
-  engine: 'Heuristic Engine (ML not connected yet)',
-  warningMessage: 'This extension exhibits highly suspicious behavior and may compromise your browser security or steal personal data.',
-  subScores: [
-    { id: 'ext-perm', label: 'Permission Risk', score: 88, maxScore: 100, severity: 'CRITICAL' },
-    { id: 'ext-host', label: 'Host Access Risk', score: 95, maxScore: 100, severity: 'CRITICAL' },
-    { id: 'ext-code', label: 'Code Risk', score: 60, maxScore: 100, severity: 'HIGH' },
-    { id: 'ext-rep', label: 'Reputation Score', score: 20, maxScore: 100, severity: 'LOW' }
+  manifest_version: 2,
+  risk_score: 93,
+  risk_level: 'CRITICAL',
+  permissions_analyzed: [
+    'webRequest',
+    'webRequestBlocking',
+    'tabs',
+    'cookies',
+    'storage',
+    'downloads',
+    'management'
   ],
-  info: [
-    { label: 'Name', value: 'Free Video Downloader Pro' },
-    { label: 'Extension ID', value: 'aabcbjklmmebngbpkgaldbf...' },
-    { label: 'Version', value: '3.2.1' },
-    { label: 'Publisher', value: 'Unknown Developer' },
-    { label: 'Manifest Version', value: '2' },
-    { label: 'Users', value: '2,400,000+' },
-    { label: 'Last Updated', value: 'April 18, 2026' },
-    { label: 'Store Rating', value: '3.1 / 5 (12,450 reviews)' }
+  host_permissions_analyzed: ['<all_urls>'],
+  permission_findings: [
+    {
+      permission: 'webRequest',
+      severity: 'HIGH',
+      reason: 'Allows the extension to observe and inspect all network requests made by the browser.'
+    },
+    {
+      permission: 'webRequestBlocking',
+      severity: 'HIGH',
+      reason: 'Allows the extension to block, redirect, or modify HTTP requests and responses.'
+    },
+    {
+      permission: 'tabs',
+      severity: 'MEDIUM',
+      reason: 'Allows the extension to access metadata of open browser tabs.'
+    },
+    {
+      permission: 'cookies',
+      severity: 'MEDIUM',
+      reason: 'Allows reading and writing cookies for websites within host permissions.'
+    },
+    {
+      permission: 'storage',
+      severity: 'LOW',
+      reason: 'Allows local storage access for extension preferences.'
+    },
+    {
+      permission: 'downloads',
+      severity: 'MEDIUM',
+      reason: 'Allows the extension to initiate and manage file downloads.'
+    },
+    {
+      permission: 'management',
+      severity: 'HIGH',
+      reason: 'Grants control over other installed browser extensions.'
+    }
   ],
-  permissions: [
-    { name: '<all_urls>', description: 'Access to all websites you visit', severity: 'CRITICAL' },
-    { name: 'webRequest', description: 'Intercepts and inspects browser network traffic', severity: 'HIGH' },
-    { name: 'webRequestBlocking', description: 'Blocks or modifies browser network requests', severity: 'HIGH' },
-    { name: 'tabs', description: 'Reads URLs and titles of all open browser tabs', severity: 'MEDIUM' },
-    { name: 'cookies', description: 'Reads and writes website session cookies', severity: 'MEDIUM' },
-    { name: 'storage', description: 'Saves extension settings and files locally', severity: 'LOW' },
-    { name: 'downloads', description: 'Initiates and manages file downloads', severity: 'MEDIUM' },
-    { name: 'management', description: 'Enables, disables or deletes other extensions', severity: 'HIGH' }
+  host_findings: [
+    {
+      permission: '<all_urls>',
+      severity: 'CRITICAL',
+      reason: 'Host permission grants access to all websites.'
+    }
   ],
-  aiChecks: [
-    { id: 'check-1', name: 'Host Permissions', finding: 'Requests access to all websites', severity: 'CRITICAL' },
-    { id: 'check-2', name: 'Background Scripts', finding: 'Persistent background process detected', severity: 'MEDIUM' },
-    { id: 'check-3', name: 'Obfuscated Code', finding: 'Minified/obfuscated JS patterns found', severity: 'HIGH' },
-    { id: 'check-4', name: 'Remote Code Loading', finding: 'Loads scripts from external domain', severity: 'CRITICAL' },
-    { id: 'check-5', name: 'Data Exfiltration Pattern', finding: 'Sends data to api.ads-tracking.net', severity: 'CRITICAL' },
-    { id: 'check-6', name: 'Publisher Verification', finding: 'Unverified publisher', severity: 'MEDIUM' }
+  combination_findings: [
+    {
+      combination: ['webRequest', 'webRequestBlocking', '<all_urls>'],
+      extra_score: 20,
+      severity: 'CRITICAL',
+      reason: 'Full traffic interception: Enables extension to silently intercept, read, and modify all traffic.'
+    }
   ],
-  radarData: [
-    { subject: 'Permissions', currentScore: 88, baselineScore: 10 },
-    { subject: 'Host Access', currentScore: 95, baselineScore: 5 },
-    { subject: 'Code Risk', currentScore: 60, baselineScore: 15 },
-    { subject: 'Behavior', currentScore: 82, baselineScore: 12 },
-    { subject: 'Reputation', currentScore: 80, baselineScore: 10 }, // low score -> high risk metric (20 rep = 80 risk)
-    { subject: 'Privacy', currentScore: 90, baselineScore: 8 }
-  ]
-}
+  manifest_finding: {
+    check: 'Manifest Version',
+    value: 'Manifest V2',
+    severity: 'LOW',
+    reason: 'Uses Manifest V2 which supports deprecated webRequestBlocking.'
+  },
+  metadata_issues: [],
+  summary: 'Critical threat risk detected: Extension combines high-risk privileges that warrant immediate removal.',
+  engine: 'CyberWatch Extension Analyzer 1.0',
+  status: 'completed'
+})

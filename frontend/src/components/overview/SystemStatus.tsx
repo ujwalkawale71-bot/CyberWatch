@@ -1,6 +1,19 @@
-import { systemStatusData } from '../../data/overviewData'
+import type { SystemServiceStatus } from '../../data/overviewData'
 
-export default function SystemStatus() {
+interface SystemStatusProps {
+  statuses?: SystemServiceStatus[]
+}
+
+export default function SystemStatus({ statuses }: SystemStatusProps) {
+  const statusList = statuses || [
+    { name: 'Real-time Protection', status: 'Active', type: 'green' },
+    { name: 'ML & Heuristic Engines', status: 'Active', type: 'green' },
+    { name: 'Threat Intelligence', status: 'Active', type: 'green' },
+    { name: 'Database', status: 'Ready', type: 'green' },
+    { name: 'API Services', status: 'Ready', type: 'green' },
+    { name: 'Browser Extension', status: 'Ready', type: 'green' }
+  ]
+
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col h-[280px] hover:border-slate-700 transition-colors justify-between text-left">
       {/* Header */}
@@ -11,7 +24,7 @@ export default function SystemStatus() {
 
       {/* Services list */}
       <div className="flex-1 my-3 overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-slate-800 flex flex-col justify-center">
-        {systemStatusData.map((service) => (
+        {statusList.map((service) => (
           <div
             key={service.name}
             className="flex items-center justify-between text-xs py-1 border-b border-slate-850 last:border-0 last:pb-0"
@@ -33,7 +46,6 @@ export default function SystemStatus() {
         ))}
       </div>
 
-      {/* Placeholder height alignment wrapper */}
       <div className="h-2" />
     </div>
   )

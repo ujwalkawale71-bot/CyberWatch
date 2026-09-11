@@ -1,7 +1,26 @@
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
-import { threatDistributionData } from '../../data/overviewData'
+import type { DistributionCategory } from '../../data/overviewData'
 
-export default function ThreatDistributionChart() {
+interface ThreatDistributionChartProps {
+  data?: DistributionCategory[]
+  total?: number
+}
+
+export default function ThreatDistributionChart({ data, total }: ThreatDistributionChartProps) {
+  const distributionData = data && data.length > 0 ? data : [
+    { name: 'Phishing URLs', value: 0, percentage: 0, color: '#2A9D8F' },
+    { name: 'Malicious Websites', value: 0, percentage: 0, color: '#4FAF78' },
+    { name: 'Malicious Extensions', value: 0, percentage: 0, color: '#E07A3F' },
+    { name: 'Malicious Files', value: 0, percentage: 0, color: '#D9534F' },
+    { name: 'Others', value: 0, percentage: 0, color: '#747B82' }
+  ]
+
+  const totalCalculated = total !== undefined ? total : distributionData.reduce((acc, curr) => acc + curr.value, 0)
+  const isAllZero = totalCalculated === 0
+  const renderData = isAllZero
+    ? [{ name: 'No Threats Detected', value: 1, percentage: 100, color: '#1e293b' }]
+    : distributionData.filter((d) => d.value > 0)
+
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col h-[340px] hover:border-slate-700 transition-colors">
       {/* Header */}
@@ -26,15 +45,15 @@ export default function ThreatDistributionChart() {
                 }}
               />
               <Pie
-                data={threatDistributionData}
+                data={renderData}
                 cx="50%"
                 cy="50%"
                 innerRadius={55}
                 outerRadius={75}
-                paddingAngle={3}
+                paddingAngle={isAllZero ? 0 : 3}
                 dataKey="value"
               >
-                {threatDistributionData.map((entry, index) => (
+                {renderData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
@@ -44,17 +63,17 @@ export default function ThreatDistributionChart() {
           {/* Absolute Center Label */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <span className="text-2xl font-extrabold text-white tracking-tight font-mono leading-none">
-              1,617
+              {totalCalculated.toLocaleString()}
             </span>
             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1.5">
-              Total
+              {isAllZero ? 'Threats' : 'Total'}
             </span>
           </div>
         </div>
 
         {/* Right Side: Detailed Legend List */}
-        <div className="flex-1 w-full space-y-2 text-left">
-          {threatDistributionData.map((item) => (
+        <div className="flex-1 w-full space-y-2 text-left overflow-y-auto max-h-[220px] scrollbar-thin scrollbar-thumb-slate-800">
+          {distributionData.map((item) => (
             <div key={item.name} className="flex items-center justify-between text-xs border-b border-slate-800/40 pb-1.5 last:border-0 last:pb-0">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: item.color }} />

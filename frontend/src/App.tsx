@@ -10,6 +10,7 @@ import Overview from './pages/Overview'
 import URLScanner from './pages/URLScanner'
 import WebsiteScanner from './pages/WebsiteScanner'
 import ExtensionScanner from './pages/ExtensionScanner'
+import FileScanner from './pages/FileScanner'
 import BehaviorMonitor from './pages/BehaviorMonitor'
 import ThreatIntelligence from './pages/ThreatIntelligence'
 import Alerts from './pages/Alerts'
@@ -40,6 +41,7 @@ function App() {
               <Route path="url-scanner" element={<URLScanner />} />
               <Route path="website-scanner" element={<WebsiteScanner />} />
               <Route path="extension-scanner" element={<ExtensionScanner />} />
+              <Route path="file-scanner" element={<FileScanner />} />
               <Route path="behavior" element={<BehaviorMonitor />} />
               <Route path="threat-intelligence" element={<ThreatIntelligence />} />
               <Route path="alerts" element={<Alerts />} />

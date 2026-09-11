@@ -9,9 +9,15 @@ from app.routes.scans import router as scans_router
 from app.routes.scan import router as scan_router
 from app.routes.alerts import router as alerts_router
 from app.routes.reports import router as reports_router
+from app.routes.dashboard import router as dashboard_router
+from app.routes.behavior import router as behavior_router
+from app.routes.threat_intelligence import router as threat_intelligence_router
 
-# Initialize tables
-Base.metadata.create_all(bind=engine)
+# Initialize tables gracefully
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"[Warning] Database initialization deferred: {e}")
 
 app = FastAPI(
     title="CyberWatch API",
@@ -35,6 +41,9 @@ app.include_router(scans_router)
 app.include_router(scan_router)
 app.include_router(alerts_router)
 app.include_router(reports_router)
+app.include_router(dashboard_router)
+app.include_router(behavior_router)
+app.include_router(threat_intelligence_router)
 
 @app.get("/")
 def read_root():

@@ -7,9 +7,14 @@ import {
   CartesianGrid,
   Tooltip
 } from 'recharts'
-import { threatActivityData } from '../../data/overviewData'
+import type { ActivityDataPoint } from '../../data/overviewData'
 
-export default function ThreatActivityChart() {
+interface ThreatActivityChartProps {
+  data?: ActivityDataPoint[]
+  range?: string
+}
+
+export default function ThreatActivityChart({ data, range = '7d' }: ThreatActivityChartProps) {
   const legendItems = [
     { label: 'URLs', color: '#2A9D8F' },
     { label: 'Websites', color: '#4FAF78' },
@@ -17,13 +22,20 @@ export default function ThreatActivityChart() {
     { label: 'Behavior', color: '#D9534F' }
   ]
 
+  const chartData = data && data.length > 0 ? data : [
+    { date: 'Day 1', urls: 0, websites: 0, extensions: 0, behavior: 0 },
+    { date: 'Day 2', urls: 0, websites: 0, extensions: 0, behavior: 0 }
+  ]
+
+  const rangeLabel = range === '30d' ? 'Last 30 Days' : range === 'all' ? 'All Time' : range === '24h' ? 'Last 24 Hours' : 'Last 7 Days'
+
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col h-[340px] hover:border-slate-700 transition-colors">
       {/* Header Info */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 text-left">
         <div>
           <h2 className="text-base font-bold text-white leading-none">Threat Activity</h2>
-          <span className="text-xs text-slate-500 mt-1 block">Last 7 Days</span>
+          <span className="text-xs text-slate-500 mt-1 block">{rangeLabel}</span>
         </div>
 
         {/* Custom Legend */}
@@ -40,7 +52,7 @@ export default function ThreatActivityChart() {
       {/* Chart Canvas */}
       <div className="flex-1 w-full min-h-0 text-xs">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={threatActivityData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+          <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#343A40" vertical={false} />
             <XAxis
               dataKey="date"
@@ -56,6 +68,7 @@ export default function ThreatActivityChart() {
               axisLine={false}
               dx={-5}
               style={{ fontSize: 10, fontFamily: 'monospace' }}
+              allowDecimals={false}
             />
             <Tooltip
               contentStyle={{

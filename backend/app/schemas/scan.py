@@ -37,13 +37,25 @@ class WebsiteScanRequest(BaseModel):
 class ExtensionScanRequest(BaseModel):
     """
     Request body for extension scanning.
-    At least one of extension_id, name, or permissions must be provided.
-    All other fields are optional and improve analysis quality when present.
+    Supports Chrome Web Store URLs, Extension IDs, Manifest JSON objects, and Package uploads.
     """
+    input_value: Optional[str] = None
+    input_type: Optional[str] = None
     extension_id: Optional[str] = None
     name: Optional[str] = None
     version: Optional[str] = None
     description: Optional[str] = None
+    developer: Optional[str] = None
+    store_url: Optional[str] = None
     manifest_version: Optional[int] = None
     permissions: List[str] = []
     host_permissions: List[str] = []
+    optional_permissions: List[str] = []
+    optional_host_permissions: List[str] = []
+    content_scripts: Optional[List[Dict[str, Any]]] = None
+    background: Optional[Dict[str, Any]] = None
+    web_accessible_resources: Optional[Any] = None
+    raw_manifest: Optional[Dict[str, Any]] = None
+    package_base64: Optional[str] = None
+
+

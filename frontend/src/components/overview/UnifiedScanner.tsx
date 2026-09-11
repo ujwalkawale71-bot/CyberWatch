@@ -1,16 +1,18 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Link2, Globe, Puzzle, Network, Cpu, ShieldAlert, Activity, Sparkles } from 'lucide-react'
 
 type TabType = 'url' | 'website' | 'extension' | 'ip'
 
 export default function UnifiedScanner() {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabType>('url')
   const [inputValue, setInputValue] = useState('')
 
   const tabs = [
     { id: 'url' as TabType, label: 'URL / Domain', icon: Link2, placeholder: 'Enter URL or Domain (e.g., https://secure-login.com)' },
     { id: 'website' as TabType, label: 'Website', icon: Globe, placeholder: 'Enter Website IP or domain (e.g., 104.244.42.1)' },
-    { id: 'extension' as TabType, label: 'Extension ID', icon: Puzzle, placeholder: 'Enter Chrome/Edge Extension ID (32-character string)' },
+    { id: 'extension' as TabType, label: 'Extension ID', icon: Puzzle, placeholder: 'Enter Chrome/Edge Extension ID or Web Store URL' },
     { id: 'ip' as TabType, label: 'IP Address', icon: Network, placeholder: 'Enter IPv4 or IPv6 Address (e.g., 8.8.8.8)' }
   ]
 
@@ -22,6 +24,20 @@ export default function UnifiedScanner() {
     { label: 'Behavior Analysis', icon: Activity },
     { label: 'Explainable AI', icon: Cpu }
   ]
+
+  const handleAnalyze = (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = inputValue.trim()
+    if (!trimmed) return
+
+    if (activeTab === 'url') {
+      navigate(`/url-scanner?url=${encodeURIComponent(trimmed)}`)
+    } else if (activeTab === 'website' || activeTab === 'ip') {
+      navigate(`/website-scanner?target=${encodeURIComponent(trimmed)}`)
+    } else if (activeTab === 'extension') {
+      navigate(`/extension-scanner?target=${encodeURIComponent(trimmed)}`)
+    }
+  }
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col h-[340px] hover:border-slate-700 transition-colors justify-between text-left">
@@ -59,7 +75,7 @@ export default function UnifiedScanner() {
       </div>
 
       {/* Scanner Input and Button */}
-      <div className="space-y-3">
+      <form onSubmit={handleAnalyze} className="space-y-3">
         <div className="relative">
           <input
             type="text"
@@ -69,10 +85,13 @@ export default function UnifiedScanner() {
             className="w-full py-2.5 px-4 bg-slate-950/40 border border-slate-800 rounded-lg text-xs text-slate-100 placeholder-slate-650 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono"
           />
         </div>
-        <button className="w-full py-2.5 text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-lg transition-all shadow-md shadow-blue-500/10 active:scale-[0.99]">
+        <button
+          type="submit"
+          className="w-full py-2.5 text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-lg transition-all shadow-md shadow-blue-500/10 active:scale-[0.99]"
+        >
           Analyze
         </button>
-      </div>
+      </form>
 
       {/* Feature Badges list */}
       <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-800/40">

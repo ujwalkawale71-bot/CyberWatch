@@ -1,72 +1,58 @@
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
-import { threatIntelligenceDemoData } from '../../data/threatIntelligenceDemoData'
+import { PieChart as PieIcon } from 'lucide-react'
+import type { ThreatCategoryCount } from '../../types/threatIntelligence'
 
-export default function ThreatCategoriesChart() {
+interface ThreatCategoriesChartProps {
+  categories: ThreatCategoryCount[]
+}
+
+export default function ThreatCategoriesChart({ categories }: ThreatCategoriesChartProps) {
+  const totalDetections = categories.reduce((acc, curr) => acc + curr.count, 0)
+
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col h-[420px] hover:border-slate-700 transition-colors">
-      {/* Header */}
-      <div className="mb-4 text-left">
-        <h2 className="text-base font-bold text-white leading-none">Top Threat Categories</h2>
-        <span className="text-xs text-slate-500 mt-1 block">Threat distribution category volumes</span>
+    <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-md shadow-xl flex flex-col justify-between">
+      <div>
+        <div className="mb-4">
+          <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+            <PieIcon className="w-4 h-4 text-emerald-400" />
+            Detected Threat Categories
+          </h3>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Distribution of confirmed malicious indicators recorded in the database.
+          </p>
+        </div>
+
+        {categories.length === 0 ? (
+          <div className="py-12 text-center text-slate-500 text-xs">
+            No confirmed malicious threats recorded in database yet.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {categories.map((cat, idx) => {
+              const pct = totalDetections > 0 ? (cat.count / totalDetections) * 100 : 0
+              return (
+                <div key={idx} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-300">{cat.category}</span>
+                    <span className="text-slate-400 font-mono">
+                      {cat.count} ({pct.toFixed(0)}%)
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+                    <div
+                      className="h-full bg-gradient-to-r from-rose-500 to-amber-500 rounded-full transition-all duration-500"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
-      {/* Grid split layout */}
-      <div className="flex-1 flex flex-col sm:flex-row items-center justify-between gap-4 min-h-0">
-        {/* Left: Donut Chart */}
-        <div className="relative w-44 h-44 flex-shrink-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0f172a',
-                  border: '1px solid #1e293b',
-                  borderRadius: '8px',
-                  color: '#f8fafc',
-                  fontSize: '11px'
-                }}
-              />
-              <Pie
-                data={threatIntelligenceDemoData.categories}
-                cx="50%"
-                cy="50%"
-                innerRadius={58}
-                outerRadius={80}
-                paddingAngle={2.5}
-                dataKey="value"
-              >
-                {threatIntelligenceDemoData.categories.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-
-          {/* Absolute Center total */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-xl font-extrabold text-white tracking-tight font-mono leading-none">
-              256,847
-            </span>
-            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1.5">
-              Total Threats
-            </span>
-          </div>
-        </div>
-
-        {/* Right: Legend stats */}
-        <div className="flex-1 w-full space-y-2 text-left overflow-y-auto max-h-[220px] pr-1 scrollbar-thin scrollbar-thumb-slate-800">
-          {threatIntelligenceDemoData.categories.map((item) => (
-            <div key={item.name} className="flex items-center justify-between text-[11px] border-b border-slate-850 pb-1.5 last:border-0 last:pb-0">
-              <div className="flex items-center space-x-2 min-w-0">
-                <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: item.color }} />
-                <span className="text-slate-300 font-medium truncate">{item.name}</span>
-              </div>
-              <div className="flex items-center space-x-1.5 font-mono text-slate-400 tabular-nums">
-                <span className="font-semibold text-slate-200">{item.percentage}%</span>
-                <span className="text-[9px] text-slate-655">({item.value.toLocaleString()})</span>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="mt-4 pt-3 border-t border-slate-800/60 text-[11px] text-slate-500 flex justify-between">
+        <span>Total Threat Records:</span>
+        <span className="font-bold text-slate-300">{totalDetections}</span>
       </div>
     </div>
   )
